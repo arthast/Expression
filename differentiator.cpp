@@ -1,16 +1,9 @@
-// differentiator.cpp
-// Основная программа-дифференциатор.
-// Поддерживаются два режима:
-// 1. Вычисление выражения: differentiator --eval "x * y" x=10 y=12
-// 2. Символьное дифференцирование: differentiator --diff "x * sin(x)" --by x
-
 #include <iostream>
 #include <string>
 #include <map>
 #include "src/parser.hpp"
 #include "src/expression.hpp"
 
-/// Функция для разбора присваивания вида "x=10"
 std::pair<std::string, long double> parseAssignment(const std::string &s) {
     size_t pos = s.find('=');
     if (pos == std::string::npos)
@@ -32,7 +25,6 @@ int main(int argc, char* argv[]) {
     std::string exprStr = argv[2];
 
     try {
-        // Парсинг входного выражения
         Expression<long double> expr = parseExpression(exprStr);
 
         if (mode == "--eval") {
@@ -45,7 +37,7 @@ int main(int argc, char* argv[]) {
             std::cout << result << std::endl;
         } else if (mode == "--diff") {
             std::string diffVar;
-            // Поиск опции --by
+
             for (int i = 3; i < argc; ++i) {
                 std::string arg = argv[i];
                 if (arg == "--by" && i + 1 < argc) {

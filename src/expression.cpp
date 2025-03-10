@@ -213,7 +213,6 @@ BinaryOperation<T>::BinaryOperation(const Expression<T> &left, const Expression<
 }
 
 
-// Операция сложения: f + g
 template<typename T>
 OperationAdd<T>::OperationAdd(const Expression<T> &left, const Expression<T> &right)
     : BinaryOperation<T>(left, right) {
@@ -245,7 +244,6 @@ std::shared_ptr<ExpressionImpl<T> > OperationAdd<T>::clone() const {
 }
 
 
-// Операция вычитания: f - g
 template<typename T>
 OperationSub<T>::OperationSub(const Expression<T> &left, const Expression<T> &right)
     : BinaryOperation<T>(left, right) {
@@ -277,7 +275,6 @@ std::shared_ptr<ExpressionImpl<T> > OperationSub<T>::clone() const {
 }
 
 
-// Операция умножения: f * g
 template<typename T>
 OperationMul<T>::OperationMul(const Expression<T> &left, const Expression<T> &right)
     : BinaryOperation<T>(left, right) {
@@ -309,7 +306,6 @@ std::shared_ptr<ExpressionImpl<T> > OperationMul<T>::clone() const {
 }
 
 
-// Операция деления: f / g
 template<typename T>
 OperationDiv<T>::OperationDiv(const Expression<T> &left, const Expression<T> &right)
     : BinaryOperation<T>(left, right) {
@@ -346,7 +342,6 @@ std::shared_ptr<ExpressionImpl<T> > OperationDiv<T>::clone() const {
 }
 
 
-// Операция возведения в степень: f ^ g
 template<typename T>
 OperationPow<T>::OperationPow(const Expression<T> &left, const Expression<T> &right)
     : BinaryOperation<T>(left, right) {

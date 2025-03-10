@@ -6,7 +6,6 @@
 #include <memory>
 #include <complex>
 
-
 template<typename T>
 class Expression;
 

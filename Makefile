@@ -11,7 +11,6 @@ TEST_TARGET = test_app
 
 .PHONY: all test clean
 
-# Цель all: сборка основного приложения, затем удаляются объектные файлы
 all: $(TARGET)
 	@rm -f $(OBJ)
 

@@ -89,7 +89,6 @@ Expression<long double> Parser::parsePrimary() {
             else
                 throw std::runtime_error("Unknown function: " + id);
         } else {
-            // Иначе – переменная.
             return Expression<long double>(id);
         }
     } else if (c == '-') {

@@ -38,6 +38,7 @@ private:
     char get();
 };
 
+
 Expression<long double> parseExpression(const std::string &str);
 
 #endif
