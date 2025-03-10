@@ -1,5 +1,6 @@
 **/.exe
 **/cmake-build-debug
+cmake-build-debug
 **/.git
 **/.idea
 .idea/
