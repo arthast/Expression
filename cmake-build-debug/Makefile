@@ -129,29 +129,29 @@ Expression/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Expression.dir/build.make CMakeFiles/Expression.dir/build
 .PHONY : Expression/fast
 
-main.o: main.cpp.o
-.PHONY : main.o
+differentiator.o: differentiator.cpp.o
+.PHONY : differentiator.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Expression.dir/build.make CMakeFiles/Expression.dir/main.cpp.o
-.PHONY : main.cpp.o
+differentiator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Expression.dir/build.make CMakeFiles/Expression.dir/differentiator.cpp.o
+.PHONY : differentiator.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+differentiator.i: differentiator.cpp.i
+.PHONY : differentiator.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Expression.dir/build.make CMakeFiles/Expression.dir/main.cpp.i
-.PHONY : main.cpp.i
+differentiator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Expression.dir/build.make CMakeFiles/Expression.dir/differentiator.cpp.i
+.PHONY : differentiator.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+differentiator.s: differentiator.cpp.s
+.PHONY : differentiator.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Expression.dir/build.make CMakeFiles/Expression.dir/main.cpp.s
-.PHONY : main.cpp.s
+differentiator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Expression.dir/build.make CMakeFiles/Expression.dir/differentiator.cpp.s
+.PHONY : differentiator.cpp.s
 
 # Help Target
 help:
@@ -162,9 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Expression"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... differentiator.o"
+	@echo "... differentiator.i"
+	@echo "... differentiator.s"
 .PHONY : help
 
 

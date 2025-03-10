@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/arsen/cppprojects/Expression/main.cpp" "CMakeFiles/Expression.dir/main.cpp.o" "gcc" "CMakeFiles/Expression.dir/main.cpp.o.d"
+  "/home/arsen/cppprojects/Expression/differentiator.cpp" "CMakeFiles/Expression.dir/differentiator.cpp.o" "gcc" "CMakeFiles/Expression.dir/differentiator.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

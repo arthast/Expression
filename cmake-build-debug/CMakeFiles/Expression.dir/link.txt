@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/Expression.dir/main.cpp.o -o Expression 
+/usr/bin/c++ -g CMakeFiles/Expression.dir/differentiator.cpp.o -o Expression 

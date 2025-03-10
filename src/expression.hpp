@@ -1,13 +1,16 @@
 #ifndef EXPRESSION_HPP
 #define EXPRESSION_HPP
 
-#include <iostream>
-#include <memory>
 #include <string>
 #include <map>
+#include <memory>
 #include <complex>
 
-// Абстрактный класс, задающий интерфейс выражений
+
+template<typename T>
+class Expression;
+
+// Абстрактный базовый класс для реализации выражения.
 template<typename T>
 class ExpressionImpl {
 public:
@@ -15,231 +18,320 @@ public:
 
     virtual ~ExpressionImpl() = default;
 
-    virtual std::string toString() const = 0;
+    // Вычисление значения выражения с заданным контекстом переменных.
+    virtual T eval(const std::map<std::string, T> &context) const = 0;
 
-    virtual T evaluate(const std::map<std::string, T> &variables) const = 0;
+    // Преобразование выражения в строку.
+    virtual std::string to_string() const = 0;
 
-    //virtual std::unique_ptr<ExpressionImpl<T>> derivative(const std::string& var) const = 0;
+    // Символьное дифференцирование по заданной переменной.
+    virtual Expression<T> derivative(const std::string &var) const = 0;
+
+    // Подстановка в выражение: замена переменной на другое выражение.
+    virtual Expression<T> substitute(const std::string &var, const Expression<T> &expr) const = 0;
+
+    // Клонирование (для реализации операций копирования).
+    virtual std::shared_ptr<ExpressionImpl<T> > clone() const = 0;
 };
 
-// Класс, задающий выражение и методы работы с ним
+// Класс для выражения.
 template<typename T>
 class Expression {
 public:
-    explicit Expression(std::string variable);
+    explicit Expression(const std::string &variable);
 
-    // Copy constructor
-    Expression(const Expression &other) {
-        impl_ = other.impl_;
-    }
+    explicit Expression(T value);
 
-    // Copy operator
-    Expression &operator=(const Expression &other) {
-        impl_ = other.impl_;
-        return *this;
-    }
+    Expression(const Expression &other);
 
-    // Move constructor
-    Expression(Expression &&other) {
-        impl_ = other.impl_;
-    }
+    Expression(Expression &&other) noexcept;
 
-    // Move operator
-    Expression &operator=(Expression &&other) {
-        impl_ = other.impl_;
-        return *this;
-    }
+    Expression &operator=(const Expression &other);
+
+    Expression &operator=(Expression &&other) noexcept;
 
     ~Expression() = default;
 
-    std::string toString() const;
+    Expression operator+(const Expression &right) const;
 
-    T evaluate(const std::map<std::string, T> &variables) const;
+    Expression operator-(const Expression &right) const;
 
-    //Expression derivative(const std::string& var) const;
+    Expression operator*(const Expression &right) const;
 
-    // Арифметические операции
-    Expression<T> operator+(const Expression<T> &rhs) const;
+    Expression operator/(const Expression &right) const;
 
-    Expression<T> &operator+=(const Expression<T> &rhs);
+    Expression operator^(const Expression &right) const;
 
-    Expression<T> operator*(const Expression<T> &rhs) const;
+    Expression &operator+=(const Expression &right);
 
-    Expression<T> &operator*=(const Expression<T> &rhs);
+    Expression &operator-=(const Expression &right);
 
-    Expression<T> operator-(const Expression<T> &rhs) const;
+    Expression &operator*=(const Expression &right);
 
-    Expression<T> operator/(const Expression<T> &rhs) const;
+    Expression &operator/=(const Expression &right);
 
-    Expression<T> operator^(const Expression<T> &rhs) const;
+    Expression &operator^=(const Expression &right);
 
-private:
+
+    T eval(const std::map<std::string, T> &context) const;
+
+    std::string to_string() const;
+
+    Expression substitute(const std::string &var, const Expression &expr) const;
+
+    Expression differentiate(const std::string &var) const;
+
     explicit Expression(std::shared_ptr<ExpressionImpl<T> > impl);
 
+    std::shared_ptr<ExpressionImpl<T> > getImpl() const { return impl_; }
+
+private:
     std::shared_ptr<ExpressionImpl<T> > impl_;
 };
 
-// Класс для представления чисел
+
+// Литералы для создания выражений с действительными числами.
+Expression<long double> operator"" _val(long double val);
+
+Expression<long double> operator"" _var(const char *str);
+
+Expression<long double> operator"" _var(const char *str, size_t);
+
+/*
+    Классы, представляющие конкретные виды выражений:
+*/
+
+// Класс, представляющий константу в выражении.
 template<typename T>
-class Number : public ExpressionImpl<T> {
-private:
-    T value;
-
+class Value : public ExpressionImpl<T> {
 public:
-    explicit Number(T val);
+    explicit Value(T value);
 
-    virtual ~Number() override = default;
+    T eval(const std::map<std::string, T> &context) const override;
 
-    std::string toString() const override;
+    std::string to_string() const override;
 
-    T evaluate(const std::map<std::string, T> &variables) const override;
+    // Производная от константы равна 0.
+    Expression<T> derivative(const std::string &var) const override;
 
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+    // Подстановка не влияет на константу.
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
+
+private:
+    T value_;
 };
 
-// Класс для представления переменных
+// Класс, представляющий переменную.
 template<typename T>
 class Variable : public ExpressionImpl<T> {
-private:
-    std::string name;
-
 public:
-    explicit Variable(const std::string &varName);
+    explicit Variable(const std::string &name);
 
-    virtual ~Variable() override = default;
+    T eval(const std::map<std::string, T> &context) const override;
 
-    std::string toString() const override;
+    std::string to_string() const override;
 
-    T evaluate(const std::map<std::string, T> &variables) const override;
+    // Производная переменной: 1, если имя совпадает, иначе 0.
+    Expression<T> derivative(const std::string &var) const override;
 
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+    // Подстановка: если имена совпадают, то возвращается подставляемое выражение.
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
+
+private:
+    std::string name_;
 };
 
-// Операции сложения и умножения
+// Базовый класс для бинарных операций.
 template<typename T>
-class OperationAdd : public ExpressionImpl<T> {
-private:
-    Expression<T> left, right;
-
+class BinaryOperation : public ExpressionImpl<T> {
 public:
-    OperationAdd(const Expression<T> &l, const Expression<T> &r);
+    BinaryOperation(const Expression<T> &left, const Expression<T> &right);
 
-    virtual ~OperationAdd() override = default;
-
-    std::string toString() const override;
-
-    T evaluate(const std::map<std::string, T> &variables) const override;
-
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+protected:
+    Expression<T> left_;
+    Expression<T> right_;
 };
 
+// Операция сложения.
 template<typename T>
-class OperationMul : public ExpressionImpl<T> {
-private:
-    Expression<T> left, right;
-
+class OperationAdd : public BinaryOperation<T> {
 public:
-    OperationMul(const Expression<T> &l, const Expression<T> &r);
+    OperationAdd(const Expression<T> &left, const Expression<T> &right);
 
-    virtual ~OperationMul() override = default;
+    T eval(const std::map<std::string, T> &context) const override;
 
-    std::string toString() const override;
+    std::string to_string() const override;
 
-    T evaluate(const std::map<std::string, T> &variables) const override;
+    Expression<T> derivative(const std::string &var) const override;
 
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
 };
 
-// Класс для вычисления синуса
+// Операция вычитания.
 template<typename T>
-class Sin : public ExpressionImpl<T> {
-private:
-    Expression<T> arg;
-
+class OperationSub : public BinaryOperation<T> {
 public:
-    explicit Sin(const Expression<T> &argument);
+    OperationSub(const Expression<T> &left, const Expression<T> &right);
 
-    std::string toString() const override;
+    T eval(const std::map<std::string, T> &context) const override;
 
-    T evaluate(const std::map<std::string, T> &variables) const override;
+    std::string to_string() const override;
 
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
 };
 
-// Класс для вычисления косинуса
+// Операция умножения.
 template<typename T>
-class Cos : public ExpressionImpl<T> {
-private:
-    Expression<T> arg;
-
+class OperationMul : public BinaryOperation<T> {
 public:
-    explicit Cos(const Expression<T> &argument);
+    OperationMul(const Expression<T> &left, const Expression<T> &right);
 
-    std::string toString() const override;
+    T eval(const std::map<std::string, T> &context) const override;
 
-    T evaluate(const std::map<std::string, T> &variables) const override;
+    std::string to_string() const override;
 
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
 };
 
-// Класс для вычисления натурального логарифма
+// Операция деления.
 template<typename T>
-class Ln : public ExpressionImpl<T> {
-private:
-    Expression<T> arg;
-
+class OperationDiv : public BinaryOperation<T> {
 public:
-    explicit Ln(const Expression<T> &argument);
+    OperationDiv(const Expression<T> &left, const Expression<T> &right);
 
-    std::string toString() const override;
+    T eval(const std::map<std::string, T> &context) const override;
 
-    T evaluate(const std::map<std::string, T> &variables) const override;
+    std::string to_string() const override;
 
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
 };
 
-// Класс для вычисления экспоненты (e^x)
+// Операция возведения в степень.
 template<typename T>
-class Exp : public ExpressionImpl<T> {
-private:
-    Expression<T> arg;
-
+class OperationPow : public BinaryOperation<T> {
 public:
-    explicit Exp(const Expression<T> &argument);
+    OperationPow(const Expression<T> &left, const Expression<T> &right);
 
-    std::string toString() const override;
+    T eval(const std::map<std::string, T> &context) const override;
 
-    T evaluate(const std::map<std::string, T> &variables) const override;
+    std::string to_string() const override;
 
-    //std::unique_ptr<ExpressionImpl> derivative(const std::string& var) const override;
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
 };
 
+// Функция sin.
 template<typename T>
-Expression<T> sin(Expression<T> arg);
+class FunctionSin : public ExpressionImpl<T> {
+public:
+    explicit FunctionSin(const Expression<T> &arg);
+
+    T eval(const std::map<std::string, T> &context) const override;
+
+    std::string to_string() const override;
+
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
+
+private:
+    Expression<T> arg_;
+};
+
+// Функция cos.
+template<typename T>
+class FunctionCos : public ExpressionImpl<T> {
+public:
+    explicit FunctionCos(const Expression<T> &arg);
+
+    T eval(const std::map<std::string, T> &context) const override;
+
+    std::string to_string() const override;
+
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
+
+private:
+    Expression<T> arg_;
+};
+
+// Функция ln.
+template<typename T>
+class FunctionLn : public ExpressionImpl<T> {
+public:
+    explicit FunctionLn(const Expression<T> &arg);
+
+    T eval(const std::map<std::string, T> &context) const override;
+
+    std::string to_string() const override;
+
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
+
+private:
+    Expression<T> arg_;
+};
+
+// Функция exp.
+template<typename T>
+class FunctionExp : public ExpressionImpl<T> {
+public:
+    explicit FunctionExp(const Expression<T> &arg);
+
+    T eval(const std::map<std::string, T> &context) const override;
+
+    std::string to_string() const override;
+
+    Expression<T> derivative(const std::string &var) const override;
+
+    Expression<T> substitute(const std::string &var, const Expression<T> &expr) const override;
+
+    std::shared_ptr<ExpressionImpl<T> > clone() const override;
+
+private:
+    Expression<T> arg_;
+};
+
+// Функции для создания функциональных выражений.
+template<typename T>
+Expression<T> sin(const Expression<T> &expr);
 
 template<typename T>
-Expression<T> cos(Expression<T> arg);
+Expression<T> cos(const Expression<T> &expr);
 
 template<typename T>
-Expression<T> ln(Expression<T> arg);
+Expression<T> ln(const Expression<T> &expr);
 
 template<typename T>
-Expression<T> exp(Expression<T> arg);
-
-// template<typename T>
-// Expression<T> make_val(T val);
-//
-// template<typename T>
-// Expression<T> make_var(const std::string &name);
-//
-// Expression<long double> operator""_val(long double val);
-//
-// Expression<long double> operator""_var(const char *name, size_t);
-//
-// // Литералы для комплексных чисел
-// Expression<std::complex<long double> > operator""_val(long double val);
-//
-// Expression<std::complex<long double> > operator""_var(const char *name, size_t);
-
+Expression<T> exp(const Expression<T> &expr);
 
 #endif // EXPRESSION_HPP

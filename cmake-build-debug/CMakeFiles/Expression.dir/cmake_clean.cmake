@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/Expression.dir/main.cpp.o"
-  "CMakeFiles/Expression.dir/main.cpp.o.d"
+  "CMakeFiles/Expression.dir/differentiator.cpp.o"
+  "CMakeFiles/Expression.dir/differentiator.cpp.o.d"
   "Expression"
   "Expression.pdb"
 )

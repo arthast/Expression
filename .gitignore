@@ -1,0 +1,11 @@
+**/.exe
+**/cmake-build-debug
+**/.git
+**/.idea
+.idea/
+.idea/*
+.idea/workspace.xml
+.vscode
+*.exe
+*.out
+*.o
