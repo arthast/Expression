@@ -1,3 +1,0 @@
-/home/arsen/cppprojects/Expression/cmake-build-debug/CMakeFiles/Expression.dir
-/home/arsen/cppprojects/Expression/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/arsen/cppprojects/Expression/cmake-build-debug/CMakeFiles/rebuild_cache.dir
